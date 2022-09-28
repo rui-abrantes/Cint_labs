@@ -1,0 +1,9 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+def minMaxNorm(x, min, max):
+    return (x - min) / (max - min)
+
+def zScoreNorm(x, mean, sd):
+    return (x- mean) / sd
