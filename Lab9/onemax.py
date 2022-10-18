@@ -17,11 +17,23 @@
 #    example which maximizes the sum of a list of integers
 #    each of which can be 0 or 1
 
+from json import tool
 import random
 
 from deap import base
 from deap import creator
 from deap import tools
+
+import math
+
+def f1(x1, x2):
+    Z1 = math.sqrt(x1*x1 + x2*x2)
+    Z2 = math.sqrt( (x1 -1)*(x1-1) + (x2+1)*(x2+1) )
+
+
+    return (math.sin(4*Z1)/ Z1 ) + (math.sin(2.5*Z2) / Z2)
+
+# creator.create("FitnessMine", f1, inputs=(1,1))
 
 creator.create("FitnessMax", base.Fitness, weights=(1.0,))
 creator.create("Individual", list, fitness=creator.FitnessMax)
@@ -29,17 +41,19 @@ creator.create("Individual", list, fitness=creator.FitnessMax)
 toolbox = base.Toolbox()
 
 # Attribute generator 
-#                      define 'attr_bool' to be an attribute ('gene')
-#                      which corresponds to integers sampled uniformly
-#                      from the range [0,1] (i.e. 0 or 1 with equal
-#                      probability)
-toolbox.register("attr_bool", random.randint, 0, 1)
+# define 'attr_bool' to be an attribute ('gene')
+# which corresponds to integers sampled uniformly
+# from the range [0,1] (i.e. 0 or 1 with equal
+# probability)
+toolbox.register("x1", random.uniform, 0, 1)
+
+toolbox.register("attr_bool", random.randint, 0.1, 1)
 
 # Structure initializers
-#                         define 'individual' to be an individual
-#                         consisting of 100 'attr_bool' elements ('genes')
+# define 'individual' to be an individual
+# consisting of 100 'attr_bool' elements ('genes')
 toolbox.register("individual", tools.initRepeat, creator.Individual, 
-    toolbox.attr_bool, 100)
+    toolbox.x1,2)
 
 # define the population to be a list of individuals
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
@@ -48,11 +62,16 @@ toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 def evalOneMax(individual):
     return sum(individual),
 
+# Exercise 2
+
+def evalNewFunc(individual):
+    return f1(x1= individual[0], x2=individual[1]),
+
 #----------
 # Operator registration
 #----------
 # register the goal / fitness function
-toolbox.register("evaluate", evalOneMax)
+toolbox.register("evaluate", evalNewFunc)
 
 # register the crossover operator
 toolbox.register("mate", tools.cxTwoPoint)
@@ -72,7 +91,7 @@ toolbox.register("select", tools.selTournament, tournsize=3)
 def main():
     random.seed(64)
 
-    # create an initial population of 300 individuals (where
+    # create an initial population of 300 individual  (where
     # each individual is a list of integers)
     pop = toolbox.population(n=300)
 
